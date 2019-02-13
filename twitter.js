@@ -45,8 +45,10 @@ exports.getMostRecentTweetByScreenName = (screenName, tweetCount, message) => {
     }
   }).then(response => {
     console.log(`Twitter User Timeline GET Success`);
-    let tweet = response.data[0];
-    message.channel.send(`https://twitter.com/${screenName}/status/${tweet.id_str}/`);
+    for(let i = 0; i < response.data.length; i++) {
+      let tweet = response.data[i];
+      message.channel.send(`https://twitter.com/${screenName}/status/${tweet.id_str}/`);
+    }
   }).catch(e => {
     console.log(`Twitter User Timeline GET Error: ${e}`);
   })
