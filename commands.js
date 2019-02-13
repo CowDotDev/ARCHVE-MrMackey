@@ -1,4 +1,4 @@
-var { Attachment } = require("discord.js");
+var { Attachment, RichEmbed } = require("discord.js");
 var Twitter = require('./twitter.js');
 var api = require('axios');
 
@@ -32,10 +32,12 @@ exports.getRandomXkcd = (message) => {
   let comicId = Math.floor(random_number);
   api.get(`https://xkcd.com/${comicId}/info.0.json`)
     .then(response => {
+      console.log("XKCD Comic GET Success");
       const comic = new Attachment(response.data.img);
       message.channel.send(comic);
     })
     .catch(() => {
+      console.log(`XKCD Comic GET Error: ${e}`);
       message.channel.send("Couldn't retrieve xkcd comic... m'kay.");
     });
 }
@@ -66,4 +68,69 @@ exports.getTweetsByScreenName = (message, params) => {
 exports.getTweetsFromTrump = (message, params) => {
   let count = (typeof params[0] !== "undefined" && !isNaN(params[0]) ? params[0] : 1);
   Twitter.getMostRecentTweetByScreenName("realDonaldTrump", count, message);
+}
+
+/**
+ * Command: !ram
+ * Params:
+ *  - [0] = Search Term
+ * Desc: Search https://masterofallscience.com website api for a scene in Rick and Morty that matches your search term
+ */
+exports.getMatchingRickAndMortyScene = (message, params) => {
+  // Our search term can be multiple words, since we only have one parameter at the moment, let's just join together the params array into one string.
+  let searchTerm = params.join(" ");
+  api.get(`https://masterofallscience.com/api/search?q=${encodeURIComponent(searchTerm)}`)
+    .then(response => {
+      // Check the response data to see if any results were found. If so, grab a random scene and then we need to hit the caption endpoint
+      console.log("Rick and Morty Search GET Success");
+      let results = response.data,
+          sceneIndex = Math.floor(Math.random() * (results.length-0) + 0),
+          sceneTimestamp = results[sceneIndex].Timestamp,
+          sceneEpisode = results[sceneIndex].Episode;
+      api.get(`https://masterofallscience.com/api/caption?e=${sceneEpisode}&t=${sceneTimestamp}`)
+        .then(response => {
+          // Grab the Scene Information, Create a Rich Embed and then send!
+          console.log("Rick and Morty Scene GET Success");
+          let episode = response.data.Episode,
+              subtitles = response.data.Subtitles
+              embed = new RichEmbed();
+
+          let gifStart = sceneTimestamp - 2000,
+              gifEnd = sceneTimestamp + 2000;
+
+          embed.setAuthor(episode.Title);
+
+          // Check if subtitles is an odd number, if so shift the first index to the description and then we know the rest will be even (or 0).
+          if(subtitles.length % 2 !== 0) {
+            embed.setDescription(subtitles.shift().Content);
+          }
+
+          for(let i = 0; i < subtitles.length; i++) {
+            // To get a zebra stripe effect, we're going to put two subtitles in a field at a time. If there isn't a "second subtitle" then we will subsitute for a blank string.
+            let first = subtitles[i].Content,
+                second = subtitles[++i].Content;
+            embed.addField(first, second);
+          }
+
+          embed.setFooter(`Season ${episode.Season} | Episode ${episode.EpisodeNumber}`);
+
+          api.get(`https://masterofallscience.com/gif/${sceneEpisode}/${gifStart}/${gifEnd}.gif`)
+            .then(response => {
+              setTimeout(function() {
+                embed.setImage(`https://masterofallscience.com/gif/${sceneEpisode}/${gifStart}/${gifEnd}.gif`);
+                message.channel.send(embed);
+              }, 4000);
+            });
+        })
+        .catch(e => {
+          // This isn't an official API (at least, I don't think so) so I'm not sure if there are true errors to handle besides a general fail.
+          console.log(`Rick and Morty Scene GET Error: ${e}`);
+          message.reply("Something's messed up, m'kay. Couldn't retrieve scene information.");
+        })
+    })
+    .catch(e => {
+      // This isn't an official API (at least, I don't think so) so I'm not sure if there are true errors to handle besides a general fail.
+      console.log(`Rick and Morty Search GET Error: ${e}`);
+      message.reply("Something's messed up, m'kay. Couldn't retrieve search information.");
+    })
 }

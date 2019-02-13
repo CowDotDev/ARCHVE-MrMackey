@@ -37,6 +37,10 @@ bot.on('message', message => {
       case "trump":
         Commands.getTweetsFromTrump(message, params);
         break;
+      // !ram {searchTem}
+      case "ram":
+        Commands.getMatchingRickAndMortyScene(message, params);
+        break;
     }
   }
 });

@@ -62,5 +62,6 @@ exports.getMostRecentTweetByScreenName = (screenName, tweetCount, message) => {
     })
     .catch(e => {
       console.log(`Twitter User Timeline GET Error: ${e}`);
+      message.reply("Twitter ain't tweeting, m'kay. There was an error getting the info.");
     });
 };
