@@ -1,13 +1,13 @@
-var { Attachment, RichEmbed } = require("discord.js");
-var Twitter = require('./twitter.js');
-var api = require('axios');
+let { Attachment, RichEmbed } = require("discord.js");
+let Twitter = require('../twitter.js');
+let api = require('axios');
 
 /**
  * Command: !drugs
  * Params: None
  * Desc: Classic Mr.Mackey
  */
-exports.drugsAreBad = () => {
+exports.drugsAreBad = (message) => {
   message.reply("Drugs are bad, m'kay.");
 };
 
@@ -119,15 +119,15 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
 
           embed.setFooter(`Season ${episode.Season} | Episode ${episode.EpisodeNumber}`);
 
+          // Set Loading Message
+          let placeholder;
+          message.channel.send("Loading Rick & Morty gif... m'kay").then(loadingMsg => { 
+            placeholder = loadingMsg; 
+          });
+
           let gifUrl = `https://masterofallscience.com/gif/${sceneEpisode}/${gifStart}/${gifEnd}.gif`;
           api.get(gifUrl)
             .then(response => {
-              // Set Loading Message
-              let placeholder;
-              message.channel.send("Loading Rick & Morty gif... m'kay").then(loadingMsg => { 
-                placeholder = loadingMsg; 
-              });
-
               // We set this timeout to help the rendering of the gif to be clearer. Not always helpful... but not having it is 100% awful
               setTimeout(function() {
                 embed.setImage(gifUrl);
@@ -147,4 +147,22 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
       console.log(`Rick and Morty Search GET Error: ${e}`);
       message.reply("Something's messed up, m'kay. Couldn't retrieve search information.");
     })
+}
+
+/**
+ * Command: !list
+ * Params: None
+ * Desc: Returns a list of all the commands Mr.Mackey knows.
+ */
+exports.getListOfCommands = (message, commands) => {
+  let embed = new RichEmbed();
+      embed.setAuthor("List of Commands Mr.Mackey Knows:");
+
+  // Go through each command, add the first cmd to the field title, the second command to the field desc.
+  for(let i = 0; i < commands.length; i++) {
+    let cmd = commands[i];
+    embed.addField(`!${cmd.command}`, `${cmd.description}`);
+  }
+
+  message.channel.send(embed);
 }
