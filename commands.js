@@ -83,8 +83,13 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
     .then(response => {
       // Check the response data to see if any results were found. If so, grab a random scene and then we need to hit the caption endpoint
       console.log("Rick and Morty Search GET Success");
-      let results = response.data,
-          sceneIndex = Math.floor(Math.random() * (results.length-0) + 0),
+      let results = response.data;
+      if(results.length <= 0) {
+        message.reply("Nothing found for that term!");
+        return false;
+      }
+
+      let sceneIndex = Math.floor(Math.random() * (results.length-0) + 0),
           sceneTimestamp = results[sceneIndex].Timestamp,
           sceneEpisode = results[sceneIndex].Episode;
       api.get(`https://masterofallscience.com/api/caption?e=${sceneEpisode}&t=${sceneTimestamp}`)
@@ -95,8 +100,8 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
               subtitles = response.data.Subtitles
               embed = new RichEmbed();
 
-          let gifStart = sceneTimestamp - 2500,
-              gifEnd = sceneTimestamp + 2500;
+          let gifStart = sceneTimestamp - 1250,
+              gifEnd = sceneTimestamp + 2750;
 
           embed.setAuthor(episode.Title);
 
@@ -114,12 +119,21 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
 
           embed.setFooter(`Season ${episode.Season} | Episode ${episode.EpisodeNumber}`);
 
-          api.get(`https://masterofallscience.com/gif/${sceneEpisode}/${gifStart}/${gifEnd}.gif`)
+          let gifUrl = `https://masterofallscience.com/gif/${sceneEpisode}/${gifStart}/${gifEnd}.gif`;
+          api.get(gifUrl)
             .then(response => {
+              // Set Loading Message
+              let placeholder;
+              message.channel.send("Loading Rick & Morty gif... m'kay").then(loadingMsg => { 
+                placeholder = loadingMsg; 
+              });
+
+              // We set this timeout to help the rendering of the gif to be clearer. Not always helpful... but not having it is 100% awful
               setTimeout(function() {
-                embed.setImage(`https://masterofallscience.com/gif/${sceneEpisode}/${gifStart}/${gifEnd}.gif`);
+                embed.setImage(gifUrl);
+                placeholder.delete(); // Delete Loadiing Message
                 message.channel.send(embed);
-              }, 4000);
+              }, 5000);
             });
         })
         .catch(e => {
