@@ -95,8 +95,8 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
               subtitles = response.data.Subtitles
               embed = new RichEmbed();
 
-          let gifStart = sceneTimestamp - 2000,
-              gifEnd = sceneTimestamp + 2000;
+          let gifStart = sceneTimestamp - 2500,
+              gifEnd = sceneTimestamp + 2500;
 
           embed.setAuthor(episode.Title);
 
