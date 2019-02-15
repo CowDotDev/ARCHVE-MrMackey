@@ -2,6 +2,7 @@ var { Client } = require('discord.js');
 var auth = require('./auth.json');
 var Twitter = require('./twitter.js');
 var Commands = require('./commands/declarations.js');
+var Custom = require('./commands/customFunctions.js');
 
 // Initialize Discord Bot
 var bot = new Client();
@@ -14,7 +15,7 @@ bot.on('ready', () => {
 
 bot.on('message', message => {
   if(message.content.substring(0,1) === "!") {
-    var command = message.content.substring(1).split(" ")[0],
+    var command = message.content.substring(1).split(" ")[0].toLowerCase(),
         params = message.content.split(" ").slice(1),
         commandFound = false;
     for(let i = 0; i < Commands.length; i++) {
@@ -26,7 +27,10 @@ bot.on('message', message => {
         break;
       }
     }
-    if(!commandFound) { message.reply("I don't know what to do, m'kay"); }
+
+    // No hard coded command was found, try to excute a custom command.
+    // If none are found, this method will have Mr.Mackey respond with a no command found message.
+    if(!commandFound) { Custom.executeCustomCommand(message,command); }
   }
 });
 

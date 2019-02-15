@@ -3,19 +3,19 @@ let map = require("./functions.js");
 module.exports = [
   {
     command: "drugs",
-    description: "Classic Mr.Mackey",
+    description: "Classic Mr.Mackey.",
     action: (msg) => { map.drugsAreBad(msg); },
     hasParams: false
   },
   {
     command: "pizza",
-    description: "Returns a gif of 'Pizza Time' Peter Parker",
+    description: "Returns a gif of 'Pizza Time' Peter Parker.",
     action: (msg) => { map.pizzaTime(msg); },
     hasParams: false
   },
   {
     command: "xkcd",
-    description: "Returns a random xkcd comic",
+    description: "Returns a random xkcd comic.",
     action: (msg) => { map.getRandomXkcd(msg); },
     hasParams: false
   },
@@ -39,8 +39,14 @@ module.exports = [
   },
   {
     command: "list",
-    description: "Returns a list of all the commands Mr.Mackey knows",
+    description: "Returns a list of all the commands Mr.Mackey knows.",
     action: (msg,cmds) => { map.getListOfCommands(msg,cmds); },
     hasParams: false
+  },
+  {
+    command: "on",
+    description: "Allows a user to create or update custom commands. (Ex. !on cow moo moo -> !cow -> moo moo)",
+    action: (msg,params) => { map.createCustomCommand(msg,params); },
+    hasParams: true
   }
 ];

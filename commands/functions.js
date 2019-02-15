@@ -1,5 +1,6 @@
 let { Attachment, RichEmbed } = require("discord.js");
 let Twitter = require('../twitter.js');
+let Custom = require('./customFunctions.js');
 let api = require('axios');
 
 /**
@@ -155,14 +156,53 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
  * Desc: Returns a list of all the commands Mr.Mackey knows.
  */
 exports.getListOfCommands = (message, commands) => {
-  let embed = new RichEmbed();
-      embed.setAuthor("List of Commands Mr.Mackey Knows:");
+  // Append Custom Commands to `commands` array
+  Custom.getListOfCustomCommands()
+    .then(dbCommands => {
+      let customCmds = [];
+      for(let i = 0; i < dbCommands.total_rows; i++) {
+        let cmd = dbCommands.rows[i].doc._id,
+            response = dbCommands.rows[i].doc.response;
+        customCmds.push({
+          command: cmd,
+          description: response
+        });
+      }
+      
+      let allCmds = commands;
+      if(typeof customCmds !== "undefined" && Array.isArray(customCmds) && customCmds.length > 0) {
+        allCmds = allCmds.concat(customCmds);
+      }
 
-  // Go through each command, add the first cmd to the field title, the second command to the field desc.
-  for(let i = 0; i < commands.length; i++) {
-    let cmd = commands[i];
-    embed.addField(`!${cmd.command}`, `${cmd.description}`);
-  }
+      // We can only do 25 RichEmbed fields, so we need to possible break up this into multiple RichEmbed sends.
+      let numOfRichEmbeds = Math.ceil(allCmds.length / 25),
+      curIndex = 0;
 
-  message.channel.send(embed);
+      for(let msgIndex = 0; msgIndex < numOfRichEmbeds; msgIndex++) {
+        let embed = new RichEmbed();
+            embed.setAuthor(`List of Commands Mr.Mackey Knows${(msgIndex > 0 ? " (Cont.)" : "")}:`);
+
+        // Go through each command, add the first cmd to the field title, the second command to the field desc.
+        // We will stop this loop if we hit the 25 field limit, or if we hit the end of the commands array.
+        for(let i = 0; (i < 25 && curIndex < allCmds.length); i++) {
+          let cmd = allCmds[curIndex++];
+          embed.addField(`!${cmd.command}`, `${cmd.description}`);
+        }
+
+        message.channel.send(embed);
+      }
+    }).catch(error => {
+      console.log(`Get All Custom Commands Error: ${JSON.stringify(error)}`);
+    });
+};
+
+/**
+ * Command: !on
+ * Params:
+ *  - [0] = Command
+ *  - [1] = Command's Return Value
+ * Desc: Allows for users to create custom commands that simply returns a string.
+ */
+exports.createCustomCommand = (msg,cmd) => {
+  Custom.createCustomCommand(msg,cmd);
 }
