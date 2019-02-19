@@ -18,7 +18,6 @@ let dbUrl = "http://localhost:5984/custom-commands-";
 exports.getListOfCustomCommands = (message) => {
   let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
   let db = new PouchDB(`${dbUrl}${dbId}`);
-
   return db.allDocs({
     include_docs: true,
     attachments: true

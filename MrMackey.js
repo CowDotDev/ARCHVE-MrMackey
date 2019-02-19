@@ -20,10 +20,10 @@ bot.on('message', message => {
         commandFound = false;
     for(let i = 0; i < Commands.length; i++) {
       let cmd = Commands[i];
-      if(cmd.command == command) {
+      commandFound = (cmd.command == command);
+      if(commandFound) {
         // Our command matches, run the action. Check to see if it accepts parameters, or if the user requested !list
         cmd.action(message,(cmd.hasParams ? params : (cmd.command === "list" ? Commands : "")));
-        commandFound = true;
         break;
       }
     }
