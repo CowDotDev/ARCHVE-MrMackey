@@ -120,7 +120,3 @@ exports.executeCustomCommand = (message,command) => {
     message.reply("No command found, m'kay. You can use **!list** to view all commands I know.");
   })
 };
-
-function testName() {
-
-}
