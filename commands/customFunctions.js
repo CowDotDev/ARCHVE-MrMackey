@@ -1,5 +1,13 @@
 let PouchDB = require('pouchdb');
-let db = new PouchDB("http://localhost:5984/custom-commands");
+let dbUrl = "http://localhost:5984/custom-commands-";
+
+/**
+ * =====================================================================================================================================
+ * Custom Commands are specific to the server/guild or DM Channel that they were defined in.
+ * Currently, we don't check for DMChannel id - as Mr.Mackey doesn't accept friend requests (yet) so he can't be part of DM Group Chats.
+ * However, if he some how enters into a DM Group Chat, things should still be specifc to that DM Group Channel.  (Untested)
+ * =====================================================================================================================================
+ */
 
 /**
  * Command: None
@@ -7,7 +15,10 @@ let db = new PouchDB("http://localhost:5984/custom-commands");
  * Desc: This method returns an array of all the custom commands, along with the command's response.
  * Returns: Array[Object]
  */
-exports.getListOfCustomCommands = () => {
+exports.getListOfCustomCommands = (message) => {
+  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
+  let db = new PouchDB(`${dbUrl}${dbId}`);
+
   return db.allDocs({
     include_docs: true,
     attachments: true
@@ -22,6 +33,9 @@ exports.getListOfCustomCommands = () => {
  * Desc: Allows for users to create custom commands that simply returns a string.
  */
 exports.createCustomCommand = (message, params) => {
+  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
+  let db = new PouchDB(`${dbUrl}${dbId}`);
+
   // First, make sure both a command and response have been supplied
   let cmd = (typeof params !== "undefined" && Array.isArray(params) && params.length > 0 ? params.shift().toLowerCase() : ""),
       cmdResponse = (typeof params !== "undefined" && Array.isArray(params) && params.length > 0 ? params.join(" ") : "");
@@ -29,7 +43,7 @@ exports.createCustomCommand = (message, params) => {
     message.reply("I couldn't figure out what your custom command was hooking too... m'kay (Ex. !on cow moo moo -> !cow -> moo moo)");
     return false;
   } else if(typeof cmdResponse === "undefined" || cmdResponse == "") {
-    message.reply(`I couldn't figure out what you wanted !${cmd} to do... m'kay (Ex. !on ${cmd} I'll say this! -> !${cmd} -> I'll say this!)`);
+    message.reply(`I couldn't figure out what you wanted **!${cmd}** to do... m'kay (Ex. !on ${cmd} I'll say this! -> !${cmd} -> I'll say this!)`);
     return false;
   }
 
@@ -96,6 +110,9 @@ exports.createCustomCommand = (message, params) => {
  * Desc: We get to this command if Mr.Mackey doesn't have any hard coded commands that match. We need to search our DB for any documents in custom-commands that match the command give. If found, send the response. Otherwise, send no command found message.
  */
 exports.executeCustomCommand = (message,command) => {
+  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
+  let db = new PouchDB(`${dbUrl}${dbId}`);
+      
   db.get(command).then(doc => {
     // We have a match, send the response then return true
     message.channel.send(doc.response);
@@ -104,3 +121,7 @@ exports.executeCustomCommand = (message,command) => {
     message.reply("No command found, m'kay. You can use **!list** to view all commands I know.");
   })
 };
+
+function testName() {
+
+}

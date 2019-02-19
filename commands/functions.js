@@ -157,7 +157,7 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
  */
 exports.getListOfCommands = (message, commands) => {
   // Append Custom Commands to `commands` array
-  Custom.getListOfCustomCommands()
+  Custom.getListOfCustomCommands(message)
     .then(dbCommands => {
       let customCmds = [];
       for(let i = 0; i < dbCommands.total_rows; i++) {
