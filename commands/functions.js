@@ -8,7 +8,7 @@ let api = require('axios');
  * Params: None
  * Desc: Classic Mr.Mackey
  */
-exports.drugsAreBad = (message) => {
+module.exports.drugsAreBad = (message) => {
   message.reply("Drugs are bad, m'kay.");
 };
 
@@ -17,7 +17,7 @@ exports.drugsAreBad = (message) => {
  * Params: None
  * Desc: Returns a gif of "Pizza Time" Peter Parker
  */
-exports.pizzaTime = (message) => {
+module.exports.pizzaTime = (message) => {
   const gif = new Attachment("https://media1.tenor.com/images/7a71a41ed97deac3853402c2b747895d/tenor.gif");
   message.channel.send(gif);
 };
@@ -27,7 +27,7 @@ exports.pizzaTime = (message) => {
  * Params: None
  * Desc: Returns a random xkcd comic.
  */
-exports.getRandomXkcd = (message) => {
+module.exports.getRandomXkcd = (message) => {
   const maxId = 2110; // This is the maximum ID that doesn't 404, as of 2/11/2019
   let random_number = Math.random() * (maxId-0) + 0;
   let comicId = Math.floor(random_number);
@@ -50,7 +50,7 @@ exports.getRandomXkcd = (message) => {
  *  - [1] = Number of Tweets (Optional | Default: 1)
  * Desc: Returns a link for each most recent tweet found by the screen name provided, by default provides only the most recent, but count parameter may be supplied to get up to 5.
  */
-exports.getTweetsByScreenName = (message, params) => {
+module.exports.getTweetsByScreenName = (message, params) => {
   if(typeof params !== "undefined" && Array.isArray(params) && params.length > 0) {
     let screenName = params[0],
         count = (typeof params[1] !== "undefined" && !isNaN(params[1]) ? params[1] : 1);
@@ -66,7 +66,7 @@ exports.getTweetsByScreenName = (message, params) => {
  *  - [0] = Number of Tweets (Optional | Default: 1)
  * Desc: Returns a link for each most recent tweet from @realDonaldTrump. By default, only his most recent tweet will be returned, count parameter may be supplied to get up to 5.
  */
-exports.getTweetsFromTrump = (message, params) => {
+module.exports.getTweetsFromTrump = (message, params) => {
   let count = (typeof params[0] !== "undefined" && !isNaN(params[0]) ? params[0] : 1);
   Twitter.getMostRecentTweetByScreenName("realDonaldTrump", count, message);
 }
@@ -77,7 +77,7 @@ exports.getTweetsFromTrump = (message, params) => {
  *  - [0] = Search Term
  * Desc: Search https://masterofallscience.com website api for a scene in Rick and Morty that matches your search term
  */
-exports.getMatchingRickAndMortyScene = (message, params) => {
+module.exports.getMatchingRickAndMortyScene = (message, params) => {
   // Our search term can be multiple words, since we only have one parameter at the moment, let's just join together the params array into one string.
   let searchTerm = params.join(" ");
   api.get(`https://masterofallscience.com/api/search?q=${encodeURIComponent(searchTerm)}`)
@@ -155,45 +155,47 @@ exports.getMatchingRickAndMortyScene = (message, params) => {
  * Params: None
  * Desc: Returns a list of all the commands Mr.Mackey knows.
  */
-exports.getListOfCommands = (message, commands) => {
+module.exports.getListOfCommands = async (message, commands) => {
   // Append Custom Commands to `commands` array
-  Custom.getListOfCustomCommands(message)
-    .then(dbCommands => {
-      let customCmds = [];
-      for(let i = 0; i < dbCommands.total_rows; i++) {
-        let cmd = dbCommands.rows[i].doc._id,
-            response = dbCommands.rows[i].doc.response;
-        customCmds.push({
-          command: cmd,
-          description: response
-        });
-      }
-      
-      let allCmds = commands;
-      if(typeof customCmds !== "undefined" && Array.isArray(customCmds) && customCmds.length > 0) {
-        allCmds = allCmds.concat(customCmds);
-      }
-
-      // We can only do 25 RichEmbed fields, so we need to possible break up this into multiple RichEmbed sends.
-      let numOfRichEmbeds = Math.ceil(allCmds.length / 25),
-      curIndex = 0;
-
-      for(let msgIndex = 0; msgIndex < numOfRichEmbeds; msgIndex++) {
-        let embed = new RichEmbed();
-            embed.setAuthor(`List of Commands Mr.Mackey Knows${(msgIndex > 0 ? " (Cont.)" : "")}:`);
-
-        // Go through each command, add the first cmd to the field title, the second command to the field desc.
-        // We will stop this loop if we hit the 25 field limit, or if we hit the end of the commands array.
-        for(let i = 0; (i < 25 && curIndex < allCmds.length); i++) {
-          let cmd = allCmds[curIndex++];
-          embed.addField(`!${cmd.command}`, `${cmd.description}`);
-        }
-
-        message.channel.send(embed);
-      }
-    }).catch(error => {
-      console.log(`Get All Custom Commands Error: ${JSON.stringify(error)}`);
+  let allCustomCmds = await Custom.getListOfCustomCommands(message).catch(error => error);
+  let customCmds = [];
+  for(let i = 0; i < allCustomCmds.total_rows; i++) {
+    let cmd = allCustomCmds.rows[i].doc._id,
+        response = allCustomCmds.rows[i].doc.response;
+    customCmds.push({
+      command: cmd,
+      description: response
     });
+  }
+  
+  // Put isInline: true on all inline commands and concat any custom commands to the regular command list.
+  let inlineCmds = commands.inline,
+      normalCmds = commands.commands;
+  for(let i = 0; i < inlineCmds.length; i++) { inlineCmds[i].isInline = true; } // We do this so we can omit the ! when displaying the command
+  if(typeof customCmds !== "undefined" && Array.isArray(customCmds) && customCmds.length > 0) {
+    normalCmds = normalCmds.concat(customCmds);
+  }
+
+  // Concat the normal/custom commands to the end of the inline command list, we want inline commands first.
+  let allCmds = inlineCmds.concat(normalCmds);
+
+  // We can only do 25 RichEmbed fields, so we need to possible break up this into multiple RichEmbed sends.
+  let numOfRichEmbeds = Math.ceil(allCmds.length / 25),
+  curIndex = 0;
+
+  for(let msgIndex = 0; msgIndex < numOfRichEmbeds; msgIndex++) {
+    let embed = new RichEmbed();
+        embed.setAuthor(`List of Commands Mr.Mackey Knows${(msgIndex > 0 ? " (Cont.)" : "")}:`);
+
+    // Go through each command, add the first cmd to the field title, the second command to the field desc.
+    // We will stop this loop if we hit the 25 field limit, or if we hit the end of the commands array.
+    for(let i = 0; (i < 25 && curIndex < allCmds.length); i++) {
+      let cmd = allCmds[curIndex++];
+      embed.addField(`${(!cmd.isInline ? "!" : "")}${cmd.command}`, `${cmd.description}`);
+    }
+
+    message.channel.send(embed);
+  }
 };
 
 /**
@@ -203,6 +205,6 @@ exports.getListOfCommands = (message, commands) => {
  *  - [1] = Command's Return Value
  * Desc: Allows for users to create custom commands that simply returns a string.
  */
-exports.createCustomCommand = (msg,cmd) => {
+module.exports.createCustomCommand = (msg,cmd) => {
   Custom.createCustomCommand(msg,cmd);
 }
