@@ -4,11 +4,11 @@ module.exports = [
   {
     command: "++",
     description: "@user++ | Increments the designated user's point value.",
-    action: (msg,params) => { map.incrementPoints(msg,params); }
+    action: (msg) => { map.updateKarma(msg,"++"); }
   },
   {
     command: "--",
     description: "@user-- | Decrements the designated user's point value.",
-    action: (msg,params) => { map.decrementPoints(msg,params); }
+    action: (msg) => { map.updateKarma(msg,"--"); }
   }
 ];

@@ -16,9 +16,8 @@ let dbName = "custom-commands-";
  * Returns: Array[Object]
  */
 module.exports.getListOfCustomCommands = (message) => {
-  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id),
-      db = dbAuth(`${dbName}${dbId}`);
-  return db.allDocs();
+  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
+  return dbAuth(`${dbName}${dbId}`).allDocs();
 };
 
 /**
@@ -47,8 +46,8 @@ module.exports.createCustomCommand = (message, params) => {
   // If so, then we want to ask the person if they are sure they want to overwrite the cmd.
   // If not, create the cmd with the given cmdResponse
   let cmdExists = true;
-  db.logIn(user.name, user.password, ajaxOpts).then(function() {
-    db.get(cmd).catch(error => {
+  db.get(cmd)
+    .catch(error => {
       if (error.name === 'not_found') {
         cmdExists = false;
         return {
@@ -59,7 +58,8 @@ module.exports.createCustomCommand = (message, params) => {
       } else { // hm, some other error
         throw error;
       }
-    }).then(doc => {
+    })
+    .then(doc => {
       if(!cmdExists) {
         // We do not have this cmd yet, should have been created since cmdExists is false and we're not in the final catch.
         db.put(doc);
@@ -95,11 +95,11 @@ module.exports.createCustomCommand = (message, params) => {
               });
           });
       }
-    }).catch(error => {
+    })
+    .catch(error => {
       console.log(`Custom Command DB GET Error: ${error}`);
       message.reply("There was an error accessing the database... m'kay");
     });
-  });
 };
 
 /**
@@ -108,16 +108,15 @@ module.exports.createCustomCommand = (message, params) => {
  * Desc: We get to this command if Mr.Mackey doesn't have any hard coded commands that match. We need to search our DB for any documents in custom-commands that match the command give. If found, send the response. Otherwise, send no command found message.
  */
 module.exports.executeCustomCommand = (message,command) => {
-  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id),
-      db = dbAuth(`${dbName}${dbId}`);
-     
-  db.logIn(user.name, user.password, ajaxOpts).then(function() {
-    db.get(command).then(doc => {
+  let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
+  dbAuth(`${dbName}${dbId}`)
+    .get(command)
+    .then(doc => {
       // We have a match, send the response then return true
       message.channel.send(doc.response);
-    }).catch(error => {
+    })
+    .catch(error => {
       // No Match, send no command found message.
       message.reply("No command found, m'kay. You can use **!list** to view all commands I know.");
     });
-  });
 };

@@ -34,6 +34,15 @@ bot.on('message', message => {
     // No hard coded command was found, try to excute a custom command.
     // If none are found, this method will have Mr.Mackey respond with a no command found message.
     if(!commandFound) { Custom.executeCustomCommand(message,command); }
+  } else {
+    // Our message does not start with !, so it isn't a basic command or custom command.
+    // We should check to see if there are any inline commands. (For now... break out of the for loop after the first inline command is found)
+    for(let i = 0; i < Inline.length; i++) {
+      if(message.content.includes(Inline[i].command)) {
+        Inline[i].action(message);
+        break;
+      }
+    }
   }
 });
 

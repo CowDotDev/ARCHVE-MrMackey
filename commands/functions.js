@@ -29,7 +29,7 @@ module.exports.pizzaTime = (message) => {
  */
 module.exports.getRandomXkcd = (message) => {
   const maxId = 2110; // This is the maximum ID that doesn't 404, as of 2/11/2019
-  let random_number = Math.random() * (maxId-0) + 0;
+  let random_number = Math.random() * maxId;
   let comicId = Math.floor(random_number);
   api.get(`https://xkcd.com/${comicId}/info.0.json`)
     .then(response => {
@@ -90,7 +90,7 @@ module.exports.getMatchingRickAndMortyScene = (message, params) => {
         return false;
       }
 
-      let sceneIndex = Math.floor(Math.random() * (results.length-0) + 0),
+      let sceneIndex = Math.floor(Math.random() * results.length),
           sceneTimestamp = results[sceneIndex].Timestamp,
           sceneEpisode = results[sceneIndex].Episode;
       api.get(`https://masterofallscience.com/api/caption?e=${sceneEpisode}&t=${sceneTimestamp}`)
