@@ -23,6 +23,7 @@ module.exports.getScoreboard = (message) => {
         if(documents.total_rows <= 0) {
           // No karma documents
           message.reply("No body has any karma yet... m'kay");
+          return;
         }
         
         let embed = new RichEmbed();
