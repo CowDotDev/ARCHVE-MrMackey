@@ -20,6 +20,7 @@ module.exports.getScoreboard = (message) => {
     dbAuth(`${dbName}${serverId}`)
       .allDocs({ include_docs: true })
       .then(documents => {
+        console.log(documents);
         if(documents.total_rows <= 0) {
           // No karma documents
           message.reply("No body has any karma yet... m'kay");
