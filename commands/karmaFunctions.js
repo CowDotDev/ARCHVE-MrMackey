@@ -130,10 +130,12 @@ module.exports.updateKarma = (message,fate) => {
     let users = [],
         usersAdded = []; // Used for dedupe
     for(let id of userIds) {
+      if(usersAdded.includes(id)) { continue; }
       if(id == message.author.id) {
-        message.reply(fate == "++" ? "Quit jacking yourself off, m'kay." : "Why so much self hate, m'kay?");
+        usersAdded.push(id);
+        message.reply("Quit jacking yourself off, m'kay.");
         continue;
-      } else if(usersAdded.includes(id)) { continue; }
+      }
       users.push(message.guild.members.get(id).user);
       usersAdded.push(id);
     }
@@ -145,7 +147,7 @@ module.exports.updateKarma = (message,fate) => {
 };
 let updateKarmaOnDB = (message,users,fate,successUsers) => {
   // Make sure we have users to modify
-  if(users.length <= 0) {
+  if(users.length <= 0 && successUsers.length > 0) {
     let mentions = "",
         scores = "";
     successUsers.forEach(user => { mentions += user.mention+" "; });
@@ -155,7 +157,7 @@ let updateKarmaOnDB = (message,users,fate,successUsers) => {
     if(successUsers.length > 1) scores = scores.substring(0, scores.length - 3);
     message.channel.send(mentions+(fate === "++" ? Helpers.generatePositiveKarmaResponse() : Helpers.generateNegativeKarmaResponse())+` (${scores})`);
     return;
-  }
+  } else if(users.length == 0 && successUsers.length == 0) { return; } // No valid users were praised. Exit out.
 
   // Make sure we are in a TextChannel for a Guild/Server
   if(message.channel.type !== "text" || typeof message.guild === "undefined" || isNaN(message.guild.id)) {
