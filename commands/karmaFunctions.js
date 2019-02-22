@@ -43,6 +43,8 @@ module.exports.getScoreboard = (message) => {
         console.log(results);
         if(documents.total_rows % 2 !== 0) {
           isLeaderSet = true;
+          let usr = results.shift();
+          console.log(usr, results);
           embed.setDescription(`${results.shift().doc.username}: ${results.shift().doc.score} :crown:`);
         }
         console.log(results);
