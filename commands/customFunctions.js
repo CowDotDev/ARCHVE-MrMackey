@@ -77,7 +77,7 @@ module.exports.createCustomCommand = (message, params) => {
             message.channel.awaitMessages(filter, { maxMatches: 1, time: 30000, errors: ['time'] })
               .then(collected => {
                 // Check to see if yes or no
-                if(collected.first().content.includes("yes")) {
+                if(collected.first().content.toLowerCase().includes("yes")) {
                   // Overwrite Commamnd
                   doc.response = cmdResponse;
                   doc.owner = message.author.username;

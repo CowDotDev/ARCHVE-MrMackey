@@ -133,7 +133,7 @@ module.exports.updateKarma = (message,fate) => {
       if(usersAdded.includes(id)) { continue; }
       if(id == message.author.id) {
         usersAdded.push(id);
-        message.reply("Quit jacking yourself off, m'kay.");
+        message.reply(fate == "++" ? "Quit jacking yourself off, m'kay." : "Don't be such a debbie downer on yourself, m'kay.");
         continue;
       }
       users.push(message.guild.members.get(id).user);
