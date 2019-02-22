@@ -19,7 +19,7 @@ bot.on('ready', () => {
 bot.on('message', message => {
   // Commands for the Bot start with !, if our message does not start with ! then we don't need to check for command matches.
   // However, we do have some inline commands (++, --, etc.) so we will need to check for that.
-  if(message.content.substring(0,1) === "!") {
+  if(message.content.substring(0,1) === prefix) {
     let command = message.content.substring(1).split(" ")[0].toLowerCase(),
         params = message.content.split(" ").slice(1),
         commandFound = false;
