@@ -20,7 +20,6 @@ module.exports.getScoreboard = (message) => {
     dbAuth(`${dbName}${serverId}`)
       .allDocs({ include_docs: true })
       .then(documents => {
-        console.log(documents);
         if(documents.total_rows <= 0) {
           // No karma documents
           message.reply("No body has any karma yet... m'kay");
@@ -31,11 +30,13 @@ module.exports.getScoreboard = (message) => {
         embed.setAuthor(`Karma Leaderboard:`);
 
         // Sort the rows by the score
-        let results = documents.rows;
-        results.sort((a,b) => {
-          if(a.doc.score > b.doc.score) return -1;
-          else return 1;
-        });
+        if(documents.total_rows > 1) {
+          let results = documents.rows;
+          results.sort((a,b) => {
+            if(a.doc.score > b.doc.score) return -1;
+            else return 1;
+          });
+        }
         
         // Check if there is an odd number of users, if so, we need to use description as the first field.
         let isLeaderSet = false;
