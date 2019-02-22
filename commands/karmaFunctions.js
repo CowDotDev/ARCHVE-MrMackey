@@ -131,7 +131,7 @@ module.exports.updateKarma = (message,fate) => {
         usersAdded = []; // Used for dedupe
     for(let id of userIds) {
       if(id == message.author.id) {
-        message.reply("Quit jacking yourself off, m'kay.");
+        message.reply(fate == "++" ? "Quit jacking yourself off, m'kay." : "Why so much self hate, m'kay?");
         continue;
       } else if(usersAdded.includes(id)) { continue; }
       users.push(message.guild.members.get(id).user);
