@@ -40,12 +40,15 @@ module.exports.getScoreboard = (message) => {
         
         // Check if there is an odd number of users, if so, we need to use description as the first field.
         let isLeaderSet = false;
-        if(results.length % 2 !== 0) {
+        console.log(results);
+        if(documents.total_rows % 2 !== 0) {
           isLeaderSet = true;
           embed.setDescription(`${results.shift().doc.username}: ${results.shift().doc.score} :crown:`);
         }
+        console.log(results);
 
         for(let i = 0; i < results.length; i++) {
+          console.log("for loop");
           embed.addField(`${results[i].doc.username}: ${results[i].doc.score} ${(!isLeaderSet && i == 0 ? ":crown:" : "")}`,
                         `${results[++i].doc.username}: ${results[i].doc.score} ${(i == results.length - 1 ? ":smiling_imp:" : "")}`); // the list [i] does not need the ++ as it will have the incremented value. Looks weird... but 'ight
         }
