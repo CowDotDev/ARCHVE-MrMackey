@@ -151,6 +151,23 @@ module.exports.getMatchingRickAndMortyScene = (message, params) => {
 }
 
 /**
+ * Command: !chuck
+ * Params: None
+ * Desc: Returns a random Chuck Norris joke.
+ */
+module.exports.generateRandomChuckNorrisJoke = (message) => {
+  api.get(`http://api.icndb.com/jokes/random`)
+    .then(response => {
+      let joke = response.data.value.joke;
+      message.channel.send(joke);
+    })
+    .catch(error => {
+      console.log(`Chuck Norris Joke Get ERROR: ${error}`);
+      message.reply("Chuck Norris found out we were making fun of him... I couldn't get a joke, m'kay");
+    });
+};
+
+/**
  * Command: !list
  * Params: None
  * Desc: Returns a list of all the commands Mr.Mackey knows.

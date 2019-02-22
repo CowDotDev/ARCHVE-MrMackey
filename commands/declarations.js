@@ -52,6 +52,12 @@ module.exports = [
     hasParams: true
   },
   {
+    command: "chuck",
+    description: "Returns a random Chuck Norris joke.",
+    action: (msg) => { map.generateRandomChuckNorrisJoke(msg); },
+    hasParams: false
+  },
+  {
     command: "drugs",
     description: "Classic Mr.Mackey.",
     action: (msg) => { map.drugsAreBad(msg); },
