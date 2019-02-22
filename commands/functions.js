@@ -197,14 +197,3 @@ module.exports.getListOfCommands = async (message, commands) => {
     message.channel.send(embed);
   }
 };
-
-/**
- * Command: !on
- * Params:
- *  - [0] = Command
- *  - [1] = Command's Return Value
- * Desc: Allows for users to create custom commands that simply returns a string.
- */
-module.exports.createCustomCommand = (msg,cmd) => {
-  Custom.createCustomCommand(msg,cmd);
-}

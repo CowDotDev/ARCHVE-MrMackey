@@ -17,7 +17,7 @@ let dbName = "custom-commands-";
  */
 module.exports.getListOfCustomCommands = (message) => {
   let dbId = (message.channel.type === "text" ? "server-"+message.guild.id : "dm-"+message.channel.id);
-  return dbAuth(`${dbName}${dbId}`).allDocs();
+  return dbAuth(`${dbName}${dbId}`).allDocs({ include_docs: true });
 };
 
 /**
