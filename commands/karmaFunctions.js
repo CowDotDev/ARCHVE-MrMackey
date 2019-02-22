@@ -30,8 +30,8 @@ module.exports.getScoreboard = (message) => {
         embed.setAuthor(`Karma Leaderboard:`);
 
         // Sort the rows by the score
+        let results = documents.rows;
         if(documents.total_rows > 1) {
-          let results = documents.rows;
           results.sort((a,b) => {
             if(a.doc.score > b.doc.score) return -1;
             else return 1;
