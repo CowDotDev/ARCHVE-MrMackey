@@ -112,7 +112,7 @@ module.exports.getKarmaLog = async (message,params) => {
  */
 module.exports.updateKarma = (message,fate) => {
   // We need to split the message into an array so we csan interate through it to find where @user++ is so we can identify the user(s) being praised/condemed
-  let deconstructedMsg = message.content.replace("> "+fate, ">"+fate).replace("> <@", "><@").split(" "),
+  let deconstructedMsg = message.content.replace("> "+fate, ">"+fate).replace(/>\s+<@/g, "><@").split(" "),
       userIds = [];
 
   // Iterate through the deconstructed message, find the message where it starts with <@ and ends in our fate (++/--). When we do, break out.
@@ -127,9 +127,15 @@ module.exports.updateKarma = (message,fate) => {
 
   // Check to see if we have mentioned users
   if(userIds.length > 0) {
-    let users = []
+    let users = [],
+        usersAdded = []; // Used for dedupe
     for(let id of userIds) {
+      if(id == message.author.id) {
+        message.reply("Quit jacking yourself off, m'kay.");
+        continue;
+      } else if(usersAdded.includes(id)) { continue; }
       users.push(message.guild.members.get(id).user);
+      usersAdded.push(id);
     }
 
     // Update User's Score
