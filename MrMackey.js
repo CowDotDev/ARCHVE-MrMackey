@@ -5,6 +5,8 @@ let Commands = require('./commands/declarations.js');
 let Inline = require('./commands/inlineDeclarations.js');
 let Custom = require('./commands/customFunctions.js');
 
+let prefix = (!auth.testBot ? "!" : "~");
+
 // Initialize Discord Bot
 let bot = new Client();
 
