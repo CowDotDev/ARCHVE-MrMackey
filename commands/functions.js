@@ -267,6 +267,8 @@ module.exports.getWeather = (message, params) => {
               
               ${daily}`
             );
+            embed.setFooter('Powered by DarkSky', "https://darksky.net/images/darkskylogo.png");
+            
 
             message.channel.send(embed);
           })
