@@ -68,5 +68,11 @@ module.exports = [
     description: "What time is it?",
     action: (msg) => { map.pizzaTime(msg); },
     hasParams: false
+  },
+  {
+    command: "weather",
+    description: "Get the weather for a zipcode. (Ex. !weather 80227)",
+    action: (msg,params) => { map.getWeather(msg,params); },
+    hasParams: true
   }
 ];
