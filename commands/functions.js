@@ -192,6 +192,17 @@ module.exports.getListOfCommands = async (message, commands) => {
   for(let i = 0; i < inlineCmds.length; i++) { inlineCmds[i].isInline = true; } // We do this so we can omit the ! when displaying the command
   if(typeof customCmds !== "undefined" && Array.isArray(customCmds) && customCmds.length > 0) {
     normalCmds = normalCmds.concat(customCmds);
+
+    // Sort normalCmds by command
+    normalCmds.sort(( a, b ) => {
+      if ( a.command < b.command ){
+        return -1;
+      }
+      if ( a.command > b.command ){
+        return 1;
+      }
+      return 0;
+    });
   }
 
   // Concat the normal/custom commands to the end of the inline command list, we want inline commands first.
@@ -212,7 +223,8 @@ module.exports.getListOfCommands = async (message, commands) => {
       embed.addField(`${(!cmd.isInline ? "!" : "")}${cmd.command}`, `${cmd.description}`);
     }
 
-    message.channel.send(embed);
+    message.author.send(embed);
+    message.delete();
   }
 };
 
