@@ -1,4 +1,5 @@
 let { Attachment, RichEmbed } = require("discord.js");
+let Helpers = require('../util/helpers.js');
 let Twitter = require('../twitter.js');
 let Custom = require('./customFunctions.js');
 let api = require('axios');
@@ -52,7 +53,7 @@ module.exports.getRandomXkcd = (message) => {
  * Desc: Returns a link for each most recent tweet found by the screen name provided, by default provides only the most recent, but count parameter may be supplied to get up to 5.
  */
 module.exports.getTweetsByScreenName = (message, params) => {
-  if(typeof params !== "undefined" && Array.isArray(params) && params.length > 0) {
+  if(Helpers.isParamSet(params)) {
     let screenName = params[0],
         count = (typeof params[1] !== "undefined" && !isNaN(params[1]) ? params[1] : 1);
     Twitter.getMostRecentTweetByScreenName(screenName, count, message);
@@ -235,7 +236,7 @@ module.exports.getListOfCommands = async (message, commands) => {
  * Desc: Coverts zipcode into Lat/Long, then returns the forecast for the minute, hour and day.
 */
 module.exports.getWeather = (message, params) => {
-  if(typeof params !== "undefined" && Array.isArray(params) && params.length > 0) {
+  if(Helpers.isParamSet(params)) {
     let zip = params[0];
     api.get(`https://www.zipcodeapi.com/rest/${auth.zipApiKey}/info.json/${zip}/degress`)
       .then((response) => {

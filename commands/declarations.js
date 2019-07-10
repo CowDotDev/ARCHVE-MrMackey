@@ -1,6 +1,7 @@
 let map = require("./functions.js");
 let Custom = require('./customFunctions.js');
 let Karma = require("./karmaFunctions.js");
+let Games = require("./gameFunctions.js");
 
 module.exports = [
   {
@@ -14,6 +15,12 @@ module.exports = [
     description: "Classic Mr.Mackey.",
     action: (msg) => { map.drugsAreBad(msg); },
     hasParams: false
+  },
+  {
+    command: "game",
+    description: "We're children and can't make up our minds, so Mr.Mackey will do it for us. (Ex. !game -> random game | !game list -> list games | !game add Halo 5 -> Adds Halo 5 to the List | !game remove Halo 5 -> Removes Halo 5 from List)",
+    action: (msg,params) => { Games.letsGame(msg,params); },
+    hasParams: true
   },
   {
     command: "karma-log",

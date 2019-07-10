@@ -12,3 +12,5 @@ module.exports.generatePositiveKarmaResponse = () => {
       index = Math.floor(Math.random() * max);
   return positiveResponses[index];
 }
+
+module.exports.isParamSet = (params) => (typeof params !== "undefined" && Array.isArray(params) && params.length > 0);
