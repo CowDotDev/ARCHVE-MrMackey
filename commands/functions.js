@@ -136,7 +136,7 @@ module.exports.getMatchingRickAndMortyScene = (message, params) => {
                 embed.setImage(gifUrl);
                 placeholder.delete(); // Delete Loadiing Message
                 message.channel.send(embed);
-              }, 5000);
+              }, 2500);
             });
         })
         .catch(e => {
@@ -238,6 +238,12 @@ module.exports.getListOfCommands = async (message, commands) => {
 module.exports.getUrbanDefinition = (message, params) => {
   if(Helpers.isParamSet(params)) {
     const search = params.join(" ");
+
+    let placeholder;
+    message.channel.send("Checking rolodex... m'kay").then(loadingMsg => { 
+      placeholder = loadingMsg; 
+    });
+
     api.get(`http://api.urbandictionary.com/v0/define?term=${search}`)
       .then((response) => {
         const results = response.data.list;
@@ -259,10 +265,16 @@ module.exports.getUrbanDefinition = (message, params) => {
             if(i != results.length - 1 && i != 2) embed.addBlankField();
           }
 
+          placeholder.delete();
           message.channel.send(embed);
         } else {
+          placeholder.delete();
           message.reply(`No urban definition for ${search}, it can mean whatever you want m'kay...`);
         }
+      })
+      .catch(() => {
+        placeholder.delete();
+        message.reply("There was an error getting the definition, m'kay...");
       })
   } else {
     message.reply("The definition of nothing is nothing, m'kay...");
