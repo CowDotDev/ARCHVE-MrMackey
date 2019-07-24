@@ -5,7 +5,7 @@
   "main": "MrMackey.js",
   "author": "Zach Case",
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "discord.js": "^11.4.2",
     "pouchdb": "^7.0.0",
     "pouchdb-find": "^7.0.0"

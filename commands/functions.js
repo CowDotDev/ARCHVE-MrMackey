@@ -230,6 +230,46 @@ module.exports.getListOfCommands = async (message, commands) => {
 };
 
 /**
+ * Command: !urban
+ * Params:
+ *  - [0] = Word/Phrase
+ * Desc: Takes a word/phrase and returns a max of three definitions from Urban Dictionary.
+*/
+module.exports.getUrbanDefinition = (message, params) => {
+  if(Helpers.isParamSet(params)) {
+    const search = params.join(" ");
+    api.get(`http://api.urbandictionary.com/v0/define?term=${search}`)
+      .then((response) => {
+        const results = response.data.list;
+
+        if(results.length > 0) {
+          let embed = new RichEmbed();
+          embed.setAuthor(`Urban Dictionary ${results.length > 1 ? "Definitions" : "Definition"}`);
+          embed.setDescription(`Search Term: ${search}`);
+          embed.addBlankField();
+
+          for(let i = 0; (i < results.length && i < 3); i++) {
+            let def = results[i];
+            embed.addField(
+              `**Definition by:** ${def.author}`, 
+              `**Definition:** ${def.definition}
+              
+              **Example:** ${def.example}`
+            );
+            if(i != results.length - 1 && i != 2) embed.addBlankField();
+          }
+
+          message.channel.send(embed);
+        } else {
+          message.reply(`No urban definition for ${search}, it can mean whatever you want m'kay...`);
+        }
+      })
+  } else {
+    message.reply("The definition of nothing is nothing, m'kay...");
+  }
+};
+
+/**
  * Command: !weather
  * Params:
  *  - [0] = Zipcode

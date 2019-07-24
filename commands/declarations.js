@@ -71,6 +71,12 @@ module.exports = [
     hasParams: true
   },
   {
+    command: "urban",
+    description: "Return the top 3 definitions of a word/phrase from urban dictionary. (Ex. !urban jebaited)",
+    action: (msg,params) => { map.getUrbanDefinition(msg,params); },
+    hasParams: true
+  },
+  {
     command: "weather",
     description: "Get the weather for a zipcode. (Ex. !weather 80227)",
     action: (msg,params) => { map.getWeather(msg,params); },
