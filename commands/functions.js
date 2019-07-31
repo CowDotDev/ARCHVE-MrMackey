@@ -134,7 +134,7 @@ module.exports.getMatchingRickAndMortyScene = (message, params) => {
               // We set this timeout to help the rendering of the gif to be clearer. Not always helpful... but not having it is 100% awful
               setTimeout(function() {
                 embed.setImage(gifUrl);
-                placeholder.delete(); // Delete Loadiing Message
+                placeholder.delete(); // Delete Loading Message
                 message.channel.send(embed);
               }, 2500);
             });
@@ -237,45 +237,46 @@ module.exports.getListOfCommands = async (message, commands) => {
 */
 module.exports.getUrbanDefinition = (message, params) => {
   if(Helpers.isParamSet(params)) {
-    const search = params.join(" ");
+    const search = params.join(" "),
+          searchUriEncoded = encodeURIComponent(search);
 
-    let placeholder;
+    var placeholder;
     message.channel.send("Checking rolodex... m'kay").then(loadingMsg => { 
-      placeholder = loadingMsg; 
-    });
+      placeholder = loadingMsg;
+    
+      api.get(`http://api.urbandictionary.com/v0/define?term=${searchUriEncoded}`)
+        .then((response) => {
+          const results = response.data.list;
 
-    api.get(`http://api.urbandictionary.com/v0/define?term=${search}`)
-      .then((response) => {
-        const results = response.data.list;
+          if(results.length > 0) {
+            let embed = new RichEmbed();
+            embed.setAuthor(`Urban Dictionary ${results.length > 1 ? "Definitions" : "Definition"}`);
+            embed.setDescription(`Search Term: ${search}`);
+            embed.addBlankField();
 
-        if(results.length > 0) {
-          let embed = new RichEmbed();
-          embed.setAuthor(`Urban Dictionary ${results.length > 1 ? "Definitions" : "Definition"}`);
-          embed.setDescription(`Search Term: ${search}`);
-          embed.addBlankField();
+            for(let i = 0; (i < results.length && i < 3); i++) {
+              let def = results[i];
+              embed.addField(
+                `**Definition by:** ${def.author}`, 
+                `**Definition:** ${def.definition}
+                
+                **Example:** ${def.example}`
+              );
+              if(i != results.length - 1 && i != 2) embed.addBlankField();
+            }
 
-          for(let i = 0; (i < results.length && i < 3); i++) {
-            let def = results[i];
-            embed.addField(
-              `**Definition by:** ${def.author}`, 
-              `**Definition:** ${def.definition}
-              
-              **Example:** ${def.example}`
-            );
-            if(i != results.length - 1 && i != 2) embed.addBlankField();
+            placeholder.delete();
+            message.channel.send(embed);
+          } else {
+            placeholder.delete();
+            message.reply(`No urban definition for ${search}, it can mean whatever you want m'kay...`);
           }
-
+        })
+        .catch((e) => {
           placeholder.delete();
-          message.channel.send(embed);
-        } else {
-          placeholder.delete();
-          message.reply(`No urban definition for ${search}, it can mean whatever you want m'kay...`);
-        }
-      })
-      .catch(() => {
-        placeholder.delete();
-        message.reply("There was an error getting the definition, m'kay...");
-      })
+          message.reply("There was an error getting the definition, m'kay...");
+        })
+    });
   } else {
     message.reply("The definition of nothing is nothing, m'kay...");
   }
