@@ -14,3 +14,5 @@ module.exports.generatePositiveKarmaResponse = () => {
 }
 
 module.exports.isParamSet = (params) => (typeof params !== "undefined" && Array.isArray(params) && params.length > 0);
+
+module.exports.getRandomInt = (min,max) => Math.floor(Math.random() * (max - min + 1) + min);
