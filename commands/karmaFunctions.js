@@ -136,7 +136,7 @@ module.exports.updateKarma = (message,fate) => {
         message.reply(fate == "++" ? "Quit jacking yourself off, m'kay." : "Don't be such a debbie downer on yourself, m'kay.");
         continue;
       }
-      console.log(message.guild.members.get(id), id)
+      console.log(message.guild, message.guild.members, id)
       users.push(message.guild.members.get(id).user);
       usersAdded.push(id);
     }
