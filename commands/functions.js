@@ -288,56 +288,56 @@ module.exports.getUrbanDefinition = (message, params) => {
  *  - [0] = Zipcode
  * Desc: Coverts zipcode into Lat/Long, then returns the forecast for the minute, hour and day.
 */
-module.exports.getWeather = (message, params) => {
-  if(Helpers.isParamSet(params)) {
-    let zip = params[0];
-    api.get(`https://www.zipcodeapi.com/rest/${auth.zipApiKey}/info.json/${zip}/degress`)
-      .then((response) => {
-        let lat = response.data.lat,
-            lng = response.data.lng,
-            cityNames = response.data.acceptable_city_names;
+// module.exports.getWeather = (message, params) => {
+//   if(Helpers.isParamSet(params)) {
+//     let zip = params[0];
+//     api.get(`https://www.zipcodeapi.com/rest/${auth.zipApiKey}/info.json/${zip}/degress`)
+//       .then((response) => {
+//         let lat = response.data.lat,
+//             lng = response.data.lng,
+//             cityNames = response.data.acceptable_city_names;
 
-        let cityState = zip;
-        if(cityNames && cityNames.length > 1) {
-          cityState = `${cityNames[0].city}, ${cityNames[0].state}`;
-        }
+//         let cityState = zip;
+//         if(cityNames && cityNames.length > 1) {
+//           cityState = `${cityNames[0].city}, ${cityNames[0].state}`;
+//         }
         
-        // Now that we have the lat/lng, we can hit Dark Sky's API
-        api.get(`https://api.darksky.net/forecast/${auth.darkSkyKey}/${lat},${lng}`)
-          .then((response) => {
-            let currently = `Currently, it is ${response.data.currently.temperature}°F.`,
-                minutely = response.data.minutely.summary,
-                hourly = response.data.hourly.summary,
-                daily = response.data.daily.summary,
-                embed = new RichEmbed();
+//         // Now that we have the lat/lng, we can hit Dark Sky's API
+//         api.get(`https://api.darksky.net/forecast/${auth.darkSkyKey}/${lat},${lng}`)
+//           .then((response) => {
+//             let currently = `Currently, it is ${response.data.currently.temperature}°F.`,
+//                 minutely = response.data.minutely.summary,
+//                 hourly = response.data.hourly.summary,
+//                 daily = response.data.daily.summary,
+//                 embed = new RichEmbed();
 
-            embed.setAuthor(`Weather for ${cityState}`);
-            embed.setDescription(
-              `${currently}
+//             embed.setAuthor(`Weather for ${cityState}`);
+//             embed.setDescription(
+//               `${currently}
 
-              ${minutely}
+//               ${minutely}
               
-              ${hourly}
+//               ${hourly}
               
-              ${daily}`
-            );
-            embed.setFooter('Powered by DarkSky', "https://darksky.net/images/darkskylogo.png");
+//               ${daily}`
+//             );
+//             embed.setFooter('Powered by DarkSky', "https://darksky.net/images/darkskylogo.png");
             
 
-            message.channel.send(embed);
-          })
-          .catch((error) => {
-            // There was an error getting the darksky forecast information
-            console.log(`Weather Forecast GET Error: ${error}`);
-            message.reply("I couldn't get the forecast for that zipcode, m'kay...");
-          });
-      })
-      .catch((error) => {
-        // There was an error getting the Zipcode Location information
-        console.log(`Weather Zip Location GET Error: ${error}`);
-        message.reply("I couldn't get the zipcode information, m'kay.");
-      });
-  } else {
-    message.reply("!weather command must include a zipcode... m'kay (Ex. !weather 80227)");
-  }
-}
+//             message.channel.send(embed);
+//           })
+//           .catch((error) => {
+//             // There was an error getting the darksky forecast information
+//             console.log(`Weather Forecast GET Error: ${error}`);
+//             message.reply("I couldn't get the forecast for that zipcode, m'kay...");
+//           });
+//       })
+//       .catch((error) => {
+//         // There was an error getting the Zipcode Location information
+//         console.log(`Weather Zip Location GET Error: ${error}`);
+//         message.reply("I couldn't get the zipcode information, m'kay.");
+//       });
+//   } else {
+//     message.reply("!weather command must include a zipcode... m'kay (Ex. !weather 80227)");
+//   }
+// }
